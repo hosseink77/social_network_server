@@ -1,0 +1,15 @@
+package com.socialhk.social_network.model.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class PostId implements Serializable {
+    private String ownerId;
+    private String title;
+}
