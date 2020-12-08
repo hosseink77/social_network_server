@@ -6,6 +6,9 @@ import com.socialhk.social_network.model.entity.UserEntity;
 import com.socialhk.social_network.model.repository.PostRepository;
 import com.socialhk.social_network.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +25,8 @@ public class PostController {
     @GetMapping(path = "/getAll", produces = "application/json")
     @ResponseStatus(code = HttpStatus.FOUND)
     public List<PostEntity> getAllPost() {
-//        return (List<PostEntity>) repository.findAll();
-        return repository.findTop10();
+        Pageable pageable = PageRequest.of(0, 10, Sort.Direction.DESC,"date");
+        return repository.findAll(pageable);
     }
 
 
