@@ -23,15 +23,16 @@ public class FriendsController {
     @GetMapping(path = "/{id}",produces = "application/json")
     @ResponseStatus(code = HttpStatus.FOUND)
     public List<UserEntity> getFriends (@PathVariable String id){
-        List<FriendsEntity> listFriend = friendsRepository.findByUser(id);
+        List<FriendsEntity> listFriend = friendsRepository.findByUserId(id);
         List<String> listUser = new ArrayList<>();
         for (FriendsEntity f : listFriend){
-            listUser.add(f.getFriend());
+            listUser.add(f.getFriendId());
         }
-        return (List<UserEntity>) userRepository.findAllById(listUser);
+        return userRepository.findByUserNameIn(listUser);
     }
 
     @PostMapping(path = "/", consumes = "application/json", produces = "application/json")
+    @ResponseStatus(code = HttpStatus.CREATED)
     public FriendsEntity addFriend (@RequestBody FriendsEntity entity){
         return friendsRepository.save(entity);
     }

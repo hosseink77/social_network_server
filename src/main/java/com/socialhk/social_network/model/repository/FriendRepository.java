@@ -10,5 +10,5 @@ import java.util.List;
 
 @Repository
 public interface FriendRepository extends CrudRepository<FriendsEntity, FriendsId> {
-    List<FriendsEntity> findByUser (@Param("id") String id);
+    List<FriendsEntity> findByUserId (@Param("id") String id);
 }

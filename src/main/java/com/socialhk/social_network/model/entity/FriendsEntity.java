@@ -17,8 +17,8 @@ import java.io.Serializable;
 @Table(name = "friends")
 public class FriendsEntity implements Serializable {
     @Id
-    private String user;
+    private String userId;
 
     @Id
-    private String friend;
+    private String friendId;
 }

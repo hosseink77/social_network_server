@@ -10,6 +10,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FriendsId implements Serializable {
-    private String user;
-    private String friend;
+    private String userId;
+    private String friendId;
 }
