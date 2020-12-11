@@ -22,10 +22,12 @@ public class PostController {
     private PostRepository repository;
 
 
-    @GetMapping(path = "/getAll", produces = "application/json")
+    @GetMapping(path ={"/getAll" , "/getAll/{page}"}, produces = "application/json")
     @ResponseStatus(code = HttpStatus.FOUND)
-    public List<PostEntity> getAllPost() {
-        Pageable pageable = PageRequest.of(0, 10, Sort.Direction.DESC,"date");
+    public List<PostEntity> getAllPost(@PathVariable(required = false) Integer page) {
+        page = (page == null)? 1 : page;
+        int last = page * 10;
+        Pageable pageable = PageRequest.of(last - 10 , last, Sort.Direction.DESC,"date");
         return repository.findAll(pageable);
     }
 
