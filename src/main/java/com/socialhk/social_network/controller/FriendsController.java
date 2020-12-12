@@ -1,6 +1,8 @@
 package com.socialhk.social_network.controller;
 
 import com.socialhk.social_network.model.entity.FriendsEntity;
+import com.socialhk.social_network.model.entity.FriendsId;
+import com.socialhk.social_network.model.entity.PostId;
 import com.socialhk.social_network.model.entity.UserEntity;
 import com.socialhk.social_network.model.repository.FriendRepository;
 import com.socialhk.social_network.model.repository.UserRepository;
@@ -35,6 +37,19 @@ public class FriendsController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public FriendsEntity addFriend (@RequestBody FriendsEntity entity){
         return friendsRepository.save(entity);
+    }
+
+    @PostMapping (path = "/delete" , consumes = "application/json")
+    @ResponseStatus(code = HttpStatus.OK)
+    public void deletePost(@RequestBody FriendsId entity) {
+        friendsRepository.deleteById(entity);
+    }
+
+    @GetMapping(path = "/isExist/{userId}/{friendId}" )
+    @ResponseStatus(code = HttpStatus.OK)
+    public boolean isExist(@PathVariable String userId,@PathVariable String friendId){
+        if( friendsRepository.existsById( new FriendsId(userId,friendId) ) ) return true;
+        return false;
     }
 
 }
