@@ -14,12 +14,6 @@ public class SocialNetworkApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SocialNetworkApplication.class, args);
-
-        // System.out.println("******************"+repository.findById("hossein").get().getPhoneNumber());
-//        System.out.println("salllllllllllllllaaaaaaaaaaaaaaaaaaaaammmm");
-//        User user = new User();
-//        user.setId("hossein");
-//        System.out.println(new Permission().PermissionLogin(user));
     }
 
 }
