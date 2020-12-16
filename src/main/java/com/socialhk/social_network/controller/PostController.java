@@ -1,8 +1,10 @@
 package com.socialhk.social_network.controller;
 
+import com.socialhk.social_network.model.entity.FriendsEntity;
 import com.socialhk.social_network.model.entity.PostEntity;
 import com.socialhk.social_network.model.entity.PostId;
 import com.socialhk.social_network.model.entity.UserEntity;
+import com.socialhk.social_network.model.repository.FriendRepository;
 import com.socialhk.social_network.model.repository.PostRepository;
 import com.socialhk.social_network.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -20,15 +23,40 @@ import java.util.NoSuchElementException;
 public class PostController {
     @Autowired
     private PostRepository repository;
+    @Autowired
+    private FriendRepository friendsRepository;
+    @Autowired
+    private UserRepository userRepository;
 
 
-    @GetMapping(path ={"/getAll" , "/getAll/{page}"}, produces = "application/json")
+    @GetMapping(path ={"/getAll" ,"/getAll/{user}" , "/getAll/{user}/{page}"}, produces = "application/json")
     @ResponseStatus(code = HttpStatus.FOUND)
-    public List<PostEntity> getAllPost(@PathVariable(required = false) Integer page) {
+    public List<PostEntity> getAllPost(@PathVariable(required = false) Integer page , @PathVariable String user ) {
         page = (page == null)? 1 : page;
         int last = page * 10;
         Pageable pageable = PageRequest.of(last - 10 , last, Sort.Direction.DESC,"date");
-        return repository.findAll(pageable);
+
+        List<String> friends = getFriends(user);
+        System.out.println(friends);
+        return repository.findByOwnerIdIn(friends,pageable);
+    }
+
+
+    public List<String> getFriends (String id){
+        List<FriendsEntity> listFriend = friendsRepository.findByUserId(id);
+        List<String> listUser = new ArrayList<>();
+        for (FriendsEntity f : listFriend){
+            listUser.add(f.getFriendId());
+        }
+
+        List<String> friendsId = new ArrayList<>();
+        List<UserEntity> friendsEntity = userRepository.findByUserNameIn(listUser);
+
+        for (UserEntity user : friendsEntity){
+            friendsId.add(user.getUserName());
+        }
+
+        return friendsId;
     }
 
 

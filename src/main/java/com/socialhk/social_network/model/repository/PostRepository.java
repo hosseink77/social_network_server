@@ -16,4 +16,6 @@ public interface PostRepository extends CrudRepository<PostEntity, PostId> {
 
 //    @Query(value = "SELECT * FROM POST where owner_id = :id ",nativeQuery = true)
     List<PostEntity> findAll(Pageable pageable);
+
+    List<PostEntity> findByOwnerIdIn(@Param("id") List<String> id , Pageable pageable);
 }
