@@ -5,6 +5,7 @@ import com.socialhk.social_network.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,6 +21,9 @@ public class UserController {
     private UserEntity user;
     @Autowired
     private UserRepository repository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 //    @GetMapping(path = "/getAll", produces = "application/json")
 //    @ResponseStatus(code = HttpStatus.FOUND)
@@ -38,6 +42,26 @@ public class UserController {
 
     }
 
+    @GetMapping(path = "/logIn/{id}/{pass}", produces = "application/json")
+//    @ResponseStatus(code = HttpStatus.FOUND)
+    public UserEntity logIn(@PathVariable String id , @PathVariable String pass) {
+        try {
+            UserEntity user = repository.findByUserName(id);
+            if(passwordEncoder.matches(pass, user.getPassword())){
+                return user;
+            }
+//            else if (pass.equals(user.getPassword())){
+//                return user;
+//            }
+            else {
+                return null;
+            }
+        }catch (NoSuchElementException | NullPointerException ex){
+            return null;
+        }
+
+    }
+
 //    @GetMapping(path = "/")
 //    public String get() {
 //
@@ -48,12 +72,18 @@ public class UserController {
     @PostMapping(path = "/", consumes = "application/json", produces = "application/json")
     @ResponseStatus(code = HttpStatus.CREATED)
     public UserEntity addUser(@RequestBody UserEntity user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return repository.save(user);
     }
 
     @PostMapping(path = "/edit", consumes = "application/json", produces = "application/json")
     @ResponseStatus(code = HttpStatus.CREATED)
     public UserEntity editUser(@RequestBody UserEntity user) {
+        if(user.getPassword() == null){
+            user.setPassword(repository.findById(user.getUuid()).get().getPassword());
+        }else{
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return repository.save(user);
     }
 
