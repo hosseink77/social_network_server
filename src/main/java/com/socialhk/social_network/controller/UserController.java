@@ -1,6 +1,8 @@
 package com.socialhk.social_network.controller;
 
+import com.socialhk.social_network.model.entity.TokensEntity;
 import com.socialhk.social_network.model.entity.UserEntity;
+import com.socialhk.social_network.model.repository.TokensRepository;
 import com.socialhk.social_network.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -18,9 +20,9 @@ import java.util.NoSuchElementException;
 //@RequestMapping(path = "/User")
 public class UserController {
     @Autowired
-    private UserEntity user;
-    @Autowired
     private UserRepository repository;
+    @Autowired
+    private TokensRepository tokensRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -42,18 +44,14 @@ public class UserController {
 
     }
 
-    @GetMapping(path = "/logIn/{id}/{pass}", produces = "application/json")
+    @GetMapping(path = "/logIn/{token}", produces = "application/json")
 //    @ResponseStatus(code = HttpStatus.FOUND)
-    public UserEntity logIn(@PathVariable String id , @PathVariable String pass) {
+    public UserEntity logIn(@PathVariable String token) {
         try {
-            UserEntity user = repository.findByUserName(id);
-            if(passwordEncoder.matches(pass, user.getPassword())){
-                return user;
-            }
-//            else if (pass.equals(user.getPassword())){
-//                return user;
-//            }
-            else {
+            TokensEntity tokensEntity = tokensRepository.findByToken(token);
+            if(tokensEntity != null) {
+                return repository.findByUserName(tokensEntity.getUserId());
+            }else {
                 return null;
             }
         }catch (NoSuchElementException | NullPointerException ex){
@@ -76,15 +74,20 @@ public class UserController {
         return repository.save(user);
     }
 
-    @PostMapping(path = "/edit", consumes = "application/json", produces = "application/json")
+    @PostMapping(path = "/edit/{token}", consumes = "application/json", produces = "application/json")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public UserEntity editUser(@RequestBody UserEntity user) {
-        if(user.getPassword() == null){
-            user.setPassword(repository.findById(user.getUuid()).get().getPassword());
-        }else{
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public UserEntity editUser(@RequestBody UserEntity user , @PathVariable String token) {
+        TokensEntity tokensEntity = tokensRepository.findByToken(token);
+        if(tokensEntity != null &&
+                repository.findByUserName(tokensEntity.getUserId()).getUuid().equals(user.getUuid())) {
+            if (user.getPassword() == null) {
+                user.setPassword(repository.findById(user.getUuid()).get().getPassword());
+            } else {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+            return repository.save(user);
         }
-        return repository.save(user);
+        return null;
     }
 
 //    @PostMapping(path = "/add", consumes = "application/json", produces = "application/json")
