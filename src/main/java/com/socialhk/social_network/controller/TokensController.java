@@ -36,8 +36,8 @@ public class TokensController {
                     return entity.getToken();
                 }
             }
-            return repository.save( b? new TokensEntity( id , UUID.randomUUID().toString() , new Date(System.currentTimeMillis()+(30*24*60*60*1000)) ) :
-                            new TokensEntity( id , UUID.randomUUID().toString() , new Date(System.currentTimeMillis()+(24*60*60*1000)) )
+            return repository.save( b? new TokensEntity( id , UUID.randomUUID().toString() , new Date(System.currentTimeMillis()+(30*24*60*60*1000L)) ) :
+                            new TokensEntity( id , UUID.randomUUID().toString() , new Date(System.currentTimeMillis()+(24*60*60*1000L)) )
                     ).getToken();
 
         }catch (Exception ex){
@@ -65,6 +65,15 @@ public class TokensController {
 
     public static boolean isValid(TokensEntity token){
         return token.getExpiration().compareTo(new Date()) ==1;
+    }
+
+    @GetMapping("/validation/{user}/{token}")
+    public boolean validationToken(@PathVariable String user , @PathVariable String token){
+        TokensEntity tokensEntity = repository.findByToken(token);
+        if(user.equals(tokensEntity.getUserId())){
+            return isValid(tokensEntity);
+        }
+        return false;
     }
 
     public boolean canLogIn(@PathVariable String id , @PathVariable String pass) {
