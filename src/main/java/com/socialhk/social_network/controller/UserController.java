@@ -49,7 +49,7 @@ public class UserController {
     public UserEntity logIn(@PathVariable String token) {
         try {
             TokensEntity tokensEntity = tokensRepository.findByToken(token);
-            if(tokensEntity != null) {
+            if(tokensEntity != null && TokensController.isValid(tokensEntity) ) {
                 return repository.findByUserName(tokensEntity.getUserId());
             }else {
                 return null;
@@ -78,7 +78,7 @@ public class UserController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public UserEntity editUser(@RequestBody UserEntity user , @PathVariable String token) {
         TokensEntity tokensEntity = tokensRepository.findByToken(token);
-        if(tokensEntity != null &&
+        if(tokensEntity != null && TokensController.isValid(tokensEntity) &&
                 repository.findByUserName(tokensEntity.getUserId()).getUuid().equals(user.getUuid())) {
             if (user.getPassword() == null) {
                 user.setPassword(repository.findById(user.getUuid()).get().getPassword());

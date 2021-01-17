@@ -33,7 +33,7 @@ public class PostController {
     @ResponseStatus(code = HttpStatus.FOUND)
     public List<PostEntity> getAllPost(@PathVariable(required = false) Integer page , @PathVariable String user,@PathVariable String token ) {
         TokensEntity tokensEntity = tokensRepository.findByToken(token);
-        if (tokensEntity != null && tokensEntity.getUserId().equals(user) ) {
+        if (tokensEntity != null && tokensEntity.getUserId().equals(user) && TokensController.isValid(tokensEntity) ) {
             page = (page == null) ? 1 : page;
             int last = page * 10;
             Pageable pageable = PageRequest.of(last - 10, last, Sort.Direction.DESC, "date");
@@ -92,7 +92,7 @@ public class PostController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public PostEntity addPost(@RequestBody PostEntity post , @PathVariable String token) {
         TokensEntity tokensEntity = tokensRepository.findByToken(token);
-        if (tokensEntity != null && tokensEntity.getUserId().equals(post.getOwnerId()) ) {
+        if (tokensEntity != null && tokensEntity.getUserId().equals(post.getOwnerId()) && TokensController.isValid(tokensEntity) ) {
             return repository.save(post);
         }else{
             return null;
@@ -103,7 +103,7 @@ public class PostController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public PostEntity editPost(@RequestBody PostEntity post, @PathVariable String oldTitle , @PathVariable String token) {
         TokensEntity tokensEntity = tokensRepository.findByToken(token);
-        if (tokensEntity != null && tokensEntity.getUserId().equals(post.getOwnerId()) ) {
+        if (tokensEntity != null && tokensEntity.getUserId().equals(post.getOwnerId()) && TokensController.isValid(tokensEntity) ) {
             if (!post.getTitle().equals(oldTitle)) {
                 repository.deleteById(new PostId(post.getOwnerId(), oldTitle));
             }
@@ -117,7 +117,7 @@ public class PostController {
     @ResponseStatus(code = HttpStatus.OK)
     public void deletePost(@PathVariable String id,@PathVariable String title , @PathVariable String token) {
         TokensEntity tokensEntity = tokensRepository.findByToken(token);
-        if (tokensEntity != null && tokensEntity.getUserId().equals(id) ) {
+        if (tokensEntity != null && tokensEntity.getUserId().equals(id) && TokensController.isValid(tokensEntity) ) {
             repository.deleteById(new PostId(id, title));
         }
     }

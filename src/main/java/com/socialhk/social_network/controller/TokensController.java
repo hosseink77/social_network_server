@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -22,16 +23,22 @@ public class TokensController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping("/{id}/{pass}" )
-    public String getToken (@PathVariable String id , @PathVariable String pass){
+    @GetMapping("/{id}/{pass}/{bool}" )
+    public String getToken (@PathVariable String id , @PathVariable String pass ,@PathVariable String bool){
+        boolean b = Boolean.parseBoolean(bool);
         try {
             if (!canLogIn(id, pass)) {
                 return null;
             }
-            if (repository.existsById(id)) {
-                return repository.findById(id).get().getToken();
+            if (repository.existsById(id) && !b) {
+                TokensEntity entity = repository.findById(id).get();
+                if( isValid(entity) ) {
+                    return entity.getToken();
+                }
             }
-            return repository.save(new TokensEntity( id , UUID.randomUUID().toString() )).getToken();
+            return repository.save( b? new TokensEntity( id , UUID.randomUUID().toString() , new Date(System.currentTimeMillis()+(30*24*60*60*1000)) ) :
+                            new TokensEntity( id , UUID.randomUUID().toString() , new Date(System.currentTimeMillis()+(24*60*60*1000)) )
+                    ).getToken();
 
         }catch (Exception ex){
             System.out.println("exception from getToken and Exception class: "+ex.getClass().getName());
@@ -54,6 +61,10 @@ public class TokensController {
         }catch (Exception ex){
             System.out.println("exception from deleteToken and Exception class: "+ex.getClass().getName());
         }
+    }
+
+    public static boolean isValid(TokensEntity token){
+        return token.getExpiration().compareTo(new Date()) ==1;
     }
 
     public boolean canLogIn(@PathVariable String id , @PathVariable String pass) {

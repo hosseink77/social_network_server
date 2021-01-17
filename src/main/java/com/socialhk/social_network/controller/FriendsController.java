@@ -27,7 +27,7 @@ public class FriendsController {
     @ResponseStatus(code = HttpStatus.FOUND)
     public List<UserEntity> getFriends (@PathVariable String id , @PathVariable String token){
         TokensEntity tokensEntity = tokensRepository.findByToken(token);
-        if (tokensEntity != null && tokensEntity.getUserId().equals(id) ) {
+        if (tokensEntity != null && tokensEntity.getUserId().equals(id) && TokensController.isValid(tokensEntity) ) {
             List<FriendsEntity> listFriend = friendsRepository.findByUserId(id);
             List<String> listUser = new ArrayList<>();
             for (FriendsEntity f : listFriend) {
@@ -43,7 +43,7 @@ public class FriendsController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public FriendsEntity addFriend (@RequestBody FriendsEntity entity , @PathVariable String token){
         TokensEntity tokensEntity = tokensRepository.findByToken(token);
-        if (tokensEntity != null && tokensEntity.getUserId().equals(entity.getUserId()) ) {
+        if (tokensEntity != null && tokensEntity.getUserId().equals(entity.getUserId()) && TokensController.isValid(tokensEntity) ) {
             return friendsRepository.save(entity);
         }else{
             return null;
@@ -54,7 +54,7 @@ public class FriendsController {
     @ResponseStatus(code = HttpStatus.OK)
     public void deleteFriend(@RequestBody FriendsId entity , @PathVariable String token) {
         TokensEntity tokensEntity = tokensRepository.findByToken(token);
-        if (tokensEntity != null && tokensEntity.getUserId().equals(entity.getUserId()) ) {
+        if (tokensEntity != null && tokensEntity.getUserId().equals(entity.getUserId()) && TokensController.isValid(tokensEntity) ) {
             friendsRepository.deleteById(entity);
         }
     }
