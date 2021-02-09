@@ -76,7 +76,7 @@ public class TokensController {
         return false;
     }
 
-    public boolean canLogIn(@PathVariable String id , @PathVariable String pass) {
+    public boolean canLogIn( String id ,  String pass) {
         try {
             UserEntity user = userRepository.findByUserName(id);
             if(passwordEncoder.matches(pass, user.getPassword())){
